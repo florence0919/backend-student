@@ -1,11 +1,13 @@
 const Student = require("../models/studentModels")
-
+const bcrypt=require("bcrypt")
 // Add Student
 exports.addStudent = async (req, res) => {
   try {
-    const { name, email, className, phone, totalFee, paidAmount,dueAmount,status } = req.body
+ 
+    const { name, email, className, phone, totalFee, paidAmount,dueAmount,status,password } = req.body
+       const hashedPassword=await bcrypt.hash(password,10);
     // Quick validation
-    if (!name || !email || !className || !phone || !totalFee || !paidAmount ) {
+    if (!name || !email || !className || !phone || !totalFee || !paidAmount||!password ) {
       return res.status(400).json({ message: "All fields are required ❌" })
     }
 
@@ -18,6 +20,7 @@ exports.addStudent = async (req, res) => {
       paidAmount,
       dueAmount,
       status,
+      password:hashedPassword, 
       image: req.file ?
       `${req.protocol}://${req.get("host")}/uploads/$(req.file.filename)`  : null
     })
@@ -34,15 +37,19 @@ exports.addStudent = async (req, res) => {
 exports.updateStudent = async (req, res) => {
   try {
     const { id } = req.params
-    const { name, email, className, phone, totalFee, paidAmount,dueAmount,status } = req.body
+    const { name, email, className, phone, totalFee, paidAmount,dueAmount,status,password } = req.body
 
-    const updateData = { name, email, className, phone, totalFee, paidAmount,dueAmount,status }
+    const updateData = { name, email, className, phone, totalFee, paidAmount,dueAmount,status,password }
+    if(password){
+      updateData.password= await bcrypt.hash(password,10);
+    }
     if (req.file) {
       updateData.image=`${req.protocol}://${req.get("host")}/uploads/$(req.file.filename)`;
     }
 
     const student = await Student.findByIdAndUpdate(id, updateData, { new: true })
     if (!student) return res.status(404).json({ message: "Student not found ❌" })
+      student.password=undefined;
 
     res.json({ message: "Student updated successfully ✅", student })
   } catch (err) {

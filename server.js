@@ -5,6 +5,7 @@ const connectDB = require("./config/db")
 const studentRoutes = require("./routes/studentRoutes")
 const auth=require("./middleware/authMiddleware")
 const authRoutes=require("./routes/authRoutes")
+const stdAuthRoutes=require("./routes/stdAuthRoutes")
 
 // Connect DB
 connectDB()
@@ -20,12 +21,15 @@ app.use(cors())
 app.use("/uploads",express.static("uploads"))
 app.use("/api/students", studentRoutes)
 app.use("/api/auth",authRoutes)
+
 //auth route
 app.get("/admin",auth,(req,res)=>{
     res.json({
         message:"welcome"
     })
+   
 })
+ app.use("/api/students",stdAuthRoutes)
 
 // Start server
 const PORT = process.env.PORT || 2000

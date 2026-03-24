@@ -57,6 +57,12 @@ const studentSchema = new mongoose.Schema({
   image: {
     type: String,
     default: null
+  },
+  password:{
+    type:String,
+    required:true,
+   
+    select:false
   }
 
 }, {
